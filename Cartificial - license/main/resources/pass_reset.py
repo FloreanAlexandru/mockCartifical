@@ -7,12 +7,12 @@ Created on Tue Oct 13 15:16:12 2020
 
 from flask import request, render_template
 from flask_jwt_extended import create_access_token, decode_token
-from database.models import User
+from database.cars_models import User
 from flask_restful import Resource
 import datetime
-from resources.errors import SchemaValidationError, InternalServerError,EmailDoesnotExistsError, BadTokenError
+from resources.errors import SchemaValidationError, InternalServerError,EmailDoesNotCorrespond, BadTokenError
 from jwt.exceptions import ExpiredSignatureError, DecodeError,InvalidTokenError
-from services.mail_service import send_email
+from services.service_mail import send_email
 
 class ForgotPassword(Resource):
     def post(self):
@@ -25,7 +25,7 @@ class ForgotPassword(Resource):
 
             user = User.objects.get(email=email)
             if not user:
-                raise EmailDoesnotExistsError
+                raise EmailDoesNotCorrespond
 
             expires = datetime.timedelta(hours=24)
             reset_token = create_access_token(str(user.id), expires_delta=expires)
@@ -33,14 +33,14 @@ class ForgotPassword(Resource):
             return send_email('Reset Your Password',
                               sender='support@cArtificial.com',
                               recipients=[user.email],
-                              text_body=render_template('email/reset_password.txt',
+                              text_body=render_template('email/pass_reset.txt',
                                                         url=url + reset_token),
-                              html_body=render_template('email/reset_password.html',
+                              html_body=render_template('email/pass_reset.html',
                                                         url=url + reset_token))
         except SchemaValidationError:
             raise SchemaValidationError
-        except EmailDoesnotExistsError:
-            raise EmailDoesnotExistsError
+        except EmailDoesNotCorrespond:
+            raise EmailDoesNotCorrespond
         except Exception as e:
             raise InternalServerError
 
@@ -65,15 +65,15 @@ class ResetPassword(Resource):
             user.save()
 
             return send_email('Password reset successful',
-                              sender='support@movie-bag.com',
+                              sender='support@cArtifical.com',
                               recipients=[user.email],
                               text_body='Password reset was successful',
                               html_body='<p>Password reset was successful</p>')
 
         except SchemaValidationError:
             raise SchemaValidationError
-        except ExpiredSignatureError:
-            raise ExpiredTokenError
+       # except ExpiredSignatureError:
+        #    raise ExpiredTokenError
         except (DecodeError, InvalidTokenError):
             raise BadTokenError
         except Exception as e:

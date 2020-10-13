@@ -7,7 +7,7 @@ Created on Tue Oct 13 15:11:46 2020
 
 from threading import Thread
 from flask_mail import Message
-from errors import InternalServerError
+from resources.errors import InternalServerError
 from app import app
 from app import mail
 

@@ -61,6 +61,10 @@ errors = {
          "message": " E-mail doesn't correspond to this username",
          "status": 401
      },
+     "BadTokenError": {
+         "message": " Token is not valid",
+         "status": 403
+     },
      "UnauthorizedError": {
          "message": "Invalid username or password",
          "status": 401
